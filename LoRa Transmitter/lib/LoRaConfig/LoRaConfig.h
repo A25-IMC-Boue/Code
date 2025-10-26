@@ -26,18 +26,22 @@ class LoRa {
         // Configure LoRa module parameters
         void config(uint8_t high = 0x01, uint8_t low = 0x02, uint8_t channel = 0x10);
 
+        // Send string message
         void sendMessage(const String message);
     
     private:
         // Pins
-        uint8_t LoRa_RX_pin;
-        uint8_t LoRa_TX_pin;
-        uint8_t AUX_pin = -1; // Not used in this class
-        uint8_t M0_pin;
-        uint8_t M1_pin;   
+        uint8_t _loraRxPin;
+        uint8_t _loraTxPin;
+        uint8_t _auxPin = -1; // Not used in this class
+        uint8_t _m0Pin;
+        uint8_t _m1Pin;
 
         // LoRa module object
-        LoRa_E32 loraModule; 
+        LoRa_E32 _loraModule; 
+
+        // If m0 and m1 pins are connected externally
+        bool _externalModePins = false;
 
 
 
@@ -50,28 +54,5 @@ class LoRa {
 
 // Tiny function to test inclusion of this file
 void testfunc();
-
-// Putting LoRa module in configuration mode
-void LoRaConfigMode(int8_t M0_pin, int8_t M1_pin);
-
-// LoRa in normal running mode
-void LoRaNormalMode(int8_t M0_pin, int8_t M1_pin);
-
-
-// Setting Address High and Low in default transmission mode
-// default: High : 0x01 and Low : 0x02 with channel 0x10
-bool configLoRa(struct Configuration current, uint8_t high = 0x01, uint8_t low = 0x02, uint8_t channel = 0x10);
-
-// Print current configuration to Serial
-// Warning only works if module in config mode!
-void printLoRaParams(struct Configuration current);
-
-
-
-
-
-
-
-
 
 #endif // LORACONFIG_H
