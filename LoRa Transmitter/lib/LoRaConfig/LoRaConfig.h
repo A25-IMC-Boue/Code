@@ -1,0 +1,20 @@
+#ifndef LORACONFIG_H
+#define LORACONFIG_H
+
+//Dependencies
+#include <Arduino.h>
+
+
+////////////////////////////////////////////////////////
+///// Functions
+////////////////////////////////////////////////////////
+
+
+// Functions to get LoRa configuration parameters
+
+
+//Test
+//Branch test
+//Another test
+
+#endif
