@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "LoRa_E32.h"
+#include <LoRaConfig.h>
 
 //LoRa
 #define FREQUENCY_868  // Use 868 for 862-931 MHz range
