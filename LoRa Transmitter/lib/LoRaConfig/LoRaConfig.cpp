@@ -13,9 +13,12 @@ LoRa::LoRa(uint8_t M0_pin, uint8_t M1_pin, uint8_t LoRa_RX, uint8_t LoRa_TX)
 {
 
     
-    if (_m0Pin != -1 || _m1Pin != -1) {
+    if (_m0Pin == -1 && _m1Pin == -1) {
         // Pins externally pulled LOW or HIGH
         _externalModePins = true;
+    }
+    else {
+        _externalModePins = false;
     }
 
 }
