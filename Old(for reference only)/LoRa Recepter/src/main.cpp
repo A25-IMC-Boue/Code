@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "LoRa_E32.h"
-#include <LoRaConfig.h>
 
 //LoRa
 #define FREQUENCY_868  // Use 868 for 862-931 MHz range
@@ -23,12 +22,13 @@ LoRa_E32 e32ttl(&Serial1, LoRa_AUX_PIN, UART_BPS_RATE_9600);
 
 Adafruit_NeoPixel pixels(NUMPIXELS, RGB_PIN, NEO_GRB + NEO_KHZ800);
 
-// Message structure
+// Message structure - MUST match transmitter!
 struct Message {
   char type[5];
   char message[6];
   float temperature;
 };
+
 
 void setup() {
   // Start RGB pixel
@@ -40,7 +40,7 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
   
-  Serial.println("\n\n=== LoRa E32 Transmitter ===");
+  Serial.println("\n\n=== LoRa E32 Receiver ===");
   
   // Manually configure Serial1 pins for ESP32
   Serial1.begin(9600, SERIAL_8N1, LoRa_RX, LoRa_TX);
@@ -51,51 +51,47 @@ void setup() {
   delay(100);
   
   Serial.println("Module initialized");
-  Serial.println("Starting transmission...");
+  Serial.println("Listening for messages...");
   
-  // Green = ready
+  // Green = ready to receive
   pixels.setPixelColor(0, pixels.Color(0, 255, 0));
   pixels.show();
 }
 
-int messageCount = 0;
-
 void loop() {
-  // Red = transmitting
-  pixels.setPixelColor(0, pixels.Color(255, 0, 0));
-  pixels.show();
-  
-  // Send simple string message
-  String msg = "Hello " + String(messageCount++);
-  
-  Serial.println("\n--- Sending Message ---");
-  Serial.print("Message: ");
-  Serial.println(msg);
-  
-  // USE BROADCAST or FIXED TRANSMISSION
-  // Option A: Broadcast to all devices on channel 0x30
-  ResponseStatus rs = e32ttl.sendBroadcastFixedMessage(0x30, msg);
-  
-  // Option B: Send to specific address (0x01, 0x02) on channel 0x30
-  // ResponseStatus rs = e32ttl.sendFixedMessage(0x01, 0x02, 0x30, msg);
-  
-  Serial.print("Status: ");
-  Serial.println(rs.getResponseDescription());
-  Serial.print("Code: ");
-  Serial.println(rs.code);
-  
-  if (rs.code == 1) {
-    // Green flash = success
-    pixels.setPixelColor(0, pixels.Color(0, 255, 0));
-    Serial.println("✓ Message sent successfully!");
-  } else {
-    // Yellow = error
-    pixels.setPixelColor(0, pixels.Color(255, 255, 0));
-    Serial.println("✗ Failed to send message!");
+  // Check if data available
+  if (e32ttl.available() > 0) {
+    Serial.println("\n--- Message Received! ---");
+    
+    // Flash white to indicate reception
+    pixels.setPixelColor(0, pixels.Color(255, 255, 255));
+    pixels.show();
+    
+    // Receive as string (simple messages)
+    ResponseContainer rs = e32ttl.receiveMessage();
+    
+    Serial.print("Status: ");
+    Serial.println(rs.status.getResponseDescription());
+    
+    if (rs.status.code == 1) {
+      Serial.print("Message: ");
+      Serial.println(rs.data);
+      
+      // Green flash on success
+      pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+      pixels.show();
+      delay(100);
+    } else {
+      Serial.println("Error receiving message!");
+      // Red flash on error
+      pixels.setPixelColor(0, pixels.Color(255, 0, 0));
+      pixels.show();
+      delay(100);
+    }
+    
+    Serial.println("------------------------\n");
   }
-  pixels.show();
   
-  Serial.println("----------------------\n");
-  
-  delay(3000); // Send every 3 seconds
+  // Small delay to avoid spamming
+  delay(100);
 }

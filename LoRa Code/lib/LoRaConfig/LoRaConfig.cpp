@@ -131,7 +131,7 @@ bool LoRa::config(uint8_t high, uint8_t low, uint8_t channel) {
     configuration.OPTION.wirelessWakeupTime = WAKE_UP_250;
     configuration.OPTION.fec = FEC_1_ON;
     configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
-    configuration.OPTION.transmissionPower = POWER_30;
+    configuration.OPTION.transmissionPower = POWER_21;
     
     // Save configuration
     ResponseStatus rs = _loraModule.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE);
@@ -170,6 +170,17 @@ void LoRa::sendMessage( uint8_t ADDH, uint8_t ADDL, const String message) {
         ResponseStatus rs = _loraModule.sendFixedMessage(ADDH, ADDL, _channel, message);
     }
 }
+
+bool LoRa::checkForMessage() {
+    if (_isNormalMode == true) {
+        if (_loraModule.available() > 0) {
+            receiveMessage();
+            return true;
+        }
+    }
+    return false;
+}
+
 
 void LoRa::receiveMessage() {
 

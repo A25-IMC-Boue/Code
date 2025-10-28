@@ -43,6 +43,8 @@ class LoRa {
         void sendBroadcastMessage(const String message);
         void sendMessage( uint8_t ADDH=0x01, uint8_t ADDL=0x02, const String message = "");
 
+        bool checkForMessage();
+
         void receiveMessage();
 
         void printLastMessage();
